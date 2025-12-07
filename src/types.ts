@@ -5,8 +5,10 @@ export const requiredString = z.string().min(1);
 export const optimizelyFlag = z.object({
   key: z.string(),
   name: z.string(),
-  variable_definitions:
-    z.any() /* TODO: Need to find a stricter way to type this */,
+  variable_definitions: z.record(
+    z.string(),
+    z.object({ default_value: z.string() })
+  ),
   updated_time: z.string(),
 });
 export const optimizelyFlags = z.array(optimizelyFlag);
@@ -39,6 +41,13 @@ export const flagAge = z.enum([
 
 export type FlagAge = z.infer<typeof flagAge>;
 
-export const flagAgeDetailsMap = z.record(flagAge, flagAgeDetails);
+export const flagAgeDetailsMap = z.object({
+  [flagAge.Enum.TWO_WEEKS_OR_LESS]: flagAgeDetails,
+  [flagAge.Enum.ONE_MONTH_OR_LESS]: flagAgeDetails,
+  [flagAge.Enum.THREE_MONTHS_OR_LESS]: flagAgeDetails,
+  [flagAge.Enum.SIX_MONTHS_OR_LESS]: flagAgeDetails,
+  [flagAge.Enum.ONE_YEAR_OR_LESS]: flagAgeDetails,
+  [flagAge.Enum.MORE_THAN_ONE_YEAR]: flagAgeDetails,
+});
 
 export type FlagAgeDetailsMap = z.infer<typeof flagAgeDetailsMap>;

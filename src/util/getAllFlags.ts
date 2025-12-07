@@ -1,3 +1,4 @@
+import fetch from "node-fetch";
 import { OptimizelyFlag, optimizelyFlags } from "../types";
 import { Inputs } from "./inputs";
 
@@ -9,7 +10,7 @@ import { Inputs } from "./inputs";
 export async function getAllFlags(): Promise<OptimizelyFlag[]> {
   try {
     const res = await fetch(
-      `https://api.optimizely.com/flags/v1/projects/${Inputs.projectId}/flags?per_page=100`,
+      `https://api.optimizely.com/flags/v1/projects/${Inputs.projectId}/flags?per_page=100&archived=false`,
       {
         method: "GET",
         headers: {
@@ -19,10 +20,14 @@ export async function getAllFlags(): Promise<OptimizelyFlag[]> {
         },
       }
     );
-    return optimizelyFlags.parse((await res.json()).items);
+    return optimizelyFlags.parse(
+      ((await res.json()) as { items: unknown }).items
+    );
   } catch (e) {
-    /* eslint-disable-next-line no-console */
-    console.error(e);
+    if (process.env.NODE_ENV !== "test") {
+      /* eslint-disable-next-line no-console */
+      console.error(e);
+    }
     return [];
   }
 }
